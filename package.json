@@ -1,19 +1,21 @@
 {
-  "name": "casper_nodejs_neo4j",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Chonwai Un, Edison",
-  "license": "ISC",
-  "dependencies": {
-    "@types/lodash": "^4.14.149",
-    "@types/node": "^13.7.6",
-    "lodash": "^4.17.15"
-  },
-  "devDependencies": {
-    "typescript": "^3.8.2"
-  }
+    "name": "casper_nodejs_neo4j",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.ts",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "prettier": "prettier --write \"*.js\" \"*.ts\""
+    },
+    "author": "Chonwai Un, Edison",
+    "license": "ISC",
+    "dependencies": {
+        "@types/lodash": "^4.14.149",
+        "@types/node": "^13.7.6",
+        "lodash": "^4.17.15"
+    },
+    "devDependencies": {
+        "prettier": "1.19.1",
+        "typescript": "^3.8.2"
+    }
 }
