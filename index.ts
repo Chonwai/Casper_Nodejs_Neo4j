@@ -1,6 +1,5 @@
 import express from 'express'
 import neo4j from 'neo4j-driver'
-import request from 'request'
 
 var graphenedbURL: string = 'bolt://localhost:7687'
 var graphenedbUser: string = 'root'
@@ -18,7 +17,6 @@ session
         result.records.forEach(function(record: any) {
             console.log(record._fields)
         })
-
         session.close()
     })
     .catch(function(error: object) {
