@@ -6,7 +6,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "prettier": "prettier --write \"*.js\" \"*.ts\"",
-        "server": "tsc && npm run prettier && node index.js",
+        "server": "tsc && npm run prettier && node --experimental-modules index.js",
         "compile": "tsc && npm run prettier"
     },
     "author": "Chonwai Un, Edison",
@@ -14,9 +14,12 @@
     "dependencies": {
         "@types/lodash": "^4.14.149",
         "@types/node": "^13.7.6",
+        "@types/request": "^2.48.4",
         "express": "^4.17.1",
         "lodash": "^4.17.15",
-        "neo4j-driver": "^4.0.1"
+        "neo4j-driver": "^4.0.1",
+        "node-neo4j": "^2.0.3",
+        "request": "^2.88.2"
     },
     "devDependencies": {
         "@types/express": "^4.17.2",
