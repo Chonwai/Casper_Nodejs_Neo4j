@@ -6,7 +6,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "prettier": "prettier --write \"*.js\" \"*.ts\"",
-        "server": "tsc && npm run prettier && node --experimental-modules index.js",
+        "server": "tsc && npm run prettier && node index.js",
         "compile": "tsc && npm run prettier"
     },
     "author": "Chonwai Un, Edison",
