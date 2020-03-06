@@ -1,5 +1,8 @@
 import express from 'express'
 import neo4j from 'neo4j-driver'
+import Neode from 'neode';
+
+const instance: Neode = Neode.fromEnv();
 
 var graphenedbURL: string = 'bolt://localhost:7687'
 var graphenedbUser: string = 'root'

@@ -15,9 +15,11 @@
         "@types/lodash": "^4.14.149",
         "@types/node": "^13.7.6",
         "@types/request": "^2.48.4",
+        "dotenv": "^8.2.0",
         "express": "^4.17.1",
         "lodash": "^4.17.15",
         "neo4j-driver": "^4.0.1",
+        "neode": "^0.4.2",
         "node-neo4j": "^2.0.3",
         "request": "^2.88.2"
     },
