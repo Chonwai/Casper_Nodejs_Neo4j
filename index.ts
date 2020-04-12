@@ -1,8 +1,8 @@
-import express from 'express'
 import neo4j from 'neo4j-driver'
-// import neo4j from 'neo4j'
 import Neode from 'neode'
 import dotenv from 'dotenv'
+import fs from 'fs'
+import csv from 'csv-parser'
 
 // const instance: Neode = Neode.fromEnv()
 
@@ -20,26 +20,12 @@ var driver: any = neo4j.driver(
 )
 
 var session = driver.session()
-// session
-//     .run(`CREATE (n:Person {name: $nameParam}) RETURN n`, {
-//         nameParam: 'Alice',
-//     })
-//     .then(function(result: any) {
-//         result.records.forEach(function(record: any) {
-//             console.log(record._fields)
-//         })
-//         session.close()
-//     })
-//     .catch(function(error: object) {
-//         console.log(error)
-//     })
 
 async function query() {
-    // var result = await session.run(
-    //     `CREATE (n:Person {name: $nameParam}) RETURN n`,
-    //     { nameParam: 'Tom' }
-    // )
-    var result = await session.run(`MATCH (n:Person) RETURN n`)
+    var result = await session.run(`
+        MATCH (n:Person) 
+        RETURN n
+    `)
     console.log(result.records)
 }
 

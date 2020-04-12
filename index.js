@@ -158,19 +158,6 @@ var driver = neo4j_driver_1.default.driver(
     neo4j_driver_1.default.auth.basic('neo4j', '1234')
 )
 var session = driver.session()
-// session
-//     .run(`CREATE (n:Person {name: $nameParam}) RETURN n`, {
-//         nameParam: 'Alice',
-//     })
-//     .then(function(result: any) {
-//         result.records.forEach(function(record: any) {
-//             console.log(record._fields)
-//         })
-//         session.close()
-//     })
-//     .catch(function(error: object) {
-//         console.log(error)
-//     })
 function query() {
     return __awaiter(this, void 0, void 0, function() {
         var result
@@ -179,7 +166,9 @@ function query() {
                 case 0:
                     return [
                         4 /*yield*/,
-                        session.run('MATCH (n:Person) RETURN n'),
+                        session.run(
+                            '\n        MATCH (n:Person) \n        RETURN n\n    '
+                        ),
                     ]
                 case 1:
                     result = _a.sent()
