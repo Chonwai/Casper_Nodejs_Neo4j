@@ -23,10 +23,52 @@ var session = driver.session()
 
 async function query() {
     var result = await session.run(`
-        MATCH (n:Person) 
-        RETURN n
+        MATCH (d)
+        WHERE (d)-[:has_taste]->(:Taste {name:'酸辣'}) AND (d)-[:is_one_of]->(:Chinese_Cuisine {name: '湘菜'})
+        RETURN d
     `)
-    console.log(result.records)
+    result.records.forEach(function(record: any) {
+        console.log(record._fields[0].properties)
+    })
 }
+
+async function insert(data: any) {
+    console.log(data.taste)
+    var result = await session.run(
+        `
+        CREATE (d:Dish {id: ${data.id}, name: ${data.title}, regional_cuisine: ${data.regional_cuisine}, taste: ${data.taste}, ingredients_details: ${data.ingredients_details}})
+        MATCH (t: Taste {name: ${data.taste}}), (c: Cuisine {name: 中國菜}), (cc: Chinese_Cuisine {name: ${data.regional_cuisine}})
+        CREATE (d)-[r1: has_taste]->(t)
+        CREATE (d)-[r2: is_one_of]->(cc)
+        RETURN d,t
+    `,
+        { data: data }
+    )
+    // console.log(result)
+}
+
+async function readCSV() {
+    var results: any[] = []
+    fs.createReadStream('./src/Data/step7Data.csv')
+        .pipe(csv())
+        .on('data', async data => await results.push(data))
+        .on('end', async () => {
+            await results.forEach(async function(result: any) {
+                result.country = '中國'
+                await insert(result)
+            })
+        })
+    return results
+}
+
+async function main() {
+    var data: any[] = []
+    data = await readCSV()
+    console.log(data)
+}
+
+// main()
+
+// readCSV()
 
 query()

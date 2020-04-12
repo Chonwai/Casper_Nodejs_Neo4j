@@ -146,6 +146,8 @@ var __importDefault =
     }
 Object.defineProperty(exports, '__esModule', { value: true })
 var neo4j_driver_1 = __importDefault(require('neo4j-driver'))
+var fs_1 = __importDefault(require('fs'))
+var csv_parser_1 = __importDefault(require('csv-parser'))
 // const instance: Neode = Neode.fromEnv()
 // dotenv.config()
 var graphenedbURL = process.env['NEO4J_URL']
@@ -167,15 +169,141 @@ function query() {
                     return [
                         4 /*yield*/,
                         session.run(
-                            '\n        MATCH (n:Person) \n        RETURN n\n    '
+                            "\n        MATCH (d)\n        WHERE (d)-[:has_taste]->(:Taste {name:'\u9178\u8FA3'}) AND (d)-[:is_one_of]->(:Chinese_Cuisine {name: '\u6E58\u83DC'})\n        RETURN d\n    "
                         ),
                     ]
                 case 1:
                     result = _a.sent()
-                    console.log(result.records)
+                    result.records.forEach(function(record) {
+                        console.log(record._fields[0].properties)
+                    })
                     return [2 /*return*/]
             }
         })
     })
 }
+function insert(data) {
+    return __awaiter(this, void 0, void 0, function() {
+        var result
+        return __generator(this, function(_a) {
+            switch (_a.label) {
+                case 0:
+                    console.log(data.taste)
+                    return [
+                        4 /*yield*/,
+                        session.run(
+                            '\n        CREATE (d:Dish {id: ' +
+                                data.id +
+                                ', name: ' +
+                                data.title +
+                                ', regional_cuisine: ' +
+                                data.regional_cuisine +
+                                ', taste: ' +
+                                data.taste +
+                                ', ingredients_details: ' +
+                                data.ingredients_details +
+                                '})\n        MATCH (t: Taste {name: ' +
+                                data.taste +
+                                '}), (c: Cuisine {name: \u4E2D\u570B\u83DC}), (cc: Chinese_Cuisine {name: ' +
+                                data.regional_cuisine +
+                                '})\n        CREATE (d)-[r1: has_taste]->(t)\n        CREATE (d)-[r2: is_one_of]->(cc)\n        RETURN d,t\n    ',
+                            { data: data }
+                        ),
+                        // console.log(result)
+                    ]
+                case 1:
+                    result = _a.sent()
+                    return [2 /*return*/]
+            }
+        })
+    })
+}
+function readCSV() {
+    return __awaiter(this, void 0, void 0, function() {
+        var results
+        var _this = this
+        return __generator(this, function(_a) {
+            results = []
+            fs_1.default
+                .createReadStream('./src/Data/step7Data.csv')
+                .pipe(csv_parser_1.default())
+                .on('data', function(data) {
+                    return __awaiter(_this, void 0, void 0, function() {
+                        return __generator(this, function(_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    return [4 /*yield*/, results.push(data)]
+                                case 1:
+                                    return [2 /*return*/, _a.sent()]
+                            }
+                        })
+                    })
+                })
+                .on('end', function() {
+                    return __awaiter(_this, void 0, void 0, function() {
+                        return __generator(this, function(_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    return [
+                                        4 /*yield*/,
+                                        results.forEach(function(result) {
+                                            return __awaiter(
+                                                this,
+                                                void 0,
+                                                void 0,
+                                                function() {
+                                                    return __generator(
+                                                        this,
+                                                        function(_a) {
+                                                            switch (_a.label) {
+                                                                case 0:
+                                                                    result.country =
+                                                                        '中國'
+                                                                    return [
+                                                                        4 /*yield*/,
+                                                                        insert(
+                                                                            result
+                                                                        ),
+                                                                    ]
+                                                                case 1:
+                                                                    _a.sent()
+                                                                    return [
+                                                                        2 /*return*/,
+                                                                    ]
+                                                            }
+                                                        }
+                                                    )
+                                                }
+                                            )
+                                        }),
+                                    ]
+                                case 1:
+                                    _a.sent()
+                                    return [2 /*return*/]
+                            }
+                        })
+                    })
+                })
+            return [2 /*return*/, results]
+        })
+    })
+}
+function main() {
+    return __awaiter(this, void 0, void 0, function() {
+        var data
+        return __generator(this, function(_a) {
+            switch (_a.label) {
+                case 0:
+                    data = []
+                    return [4 /*yield*/, readCSV()]
+                case 1:
+                    data = _a.sent()
+                    console.log(data)
+                    return [2 /*return*/]
+            }
+        })
+    })
+}
+// main()
+// readCSV()
 query()
