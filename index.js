@@ -225,7 +225,7 @@ function readCSV() {
         return __generator(this, function(_a) {
             results = []
             fs_1.default
-                .createReadStream('./src/Data/step7Data.csv')
+                .createReadStream('./src/Data/RawData.csv')
                 .pipe(csv_parser_1.default())
                 .on('data', function(data) {
                     return __awaiter(_this, void 0, void 0, function() {
@@ -255,22 +255,12 @@ function readCSV() {
                                                     return __generator(
                                                         this,
                                                         function(_a) {
-                                                            switch (_a.label) {
-                                                                case 0:
-                                                                    result.country =
-                                                                        '中國'
-                                                                    return [
-                                                                        4 /*yield*/,
-                                                                        insert(
-                                                                            result
-                                                                        ),
-                                                                    ]
-                                                                case 1:
-                                                                    _a.sent()
-                                                                    return [
-                                                                        2 /*return*/,
-                                                                    ]
-                                                            }
+                                                            console.log(
+                                                                result.title
+                                                            )
+                                                            return [
+                                                                2 /*return*/,
+                                                            ]
                                                         }
                                                     )
                                                 }
@@ -305,5 +295,5 @@ function main() {
     })
 }
 // main()
-// readCSV()
-query()
+readCSV()
+// query()

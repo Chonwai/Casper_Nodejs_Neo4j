@@ -47,15 +47,18 @@ async function insert(data: any) {
     // console.log(result)
 }
 
+async function miningWithBaiduBaike(name: string) {
+    let url: string = `https://baike.baidu.com/item/${name}`
+}
+
 async function readCSV() {
     var results: any[] = []
-    fs.createReadStream('./src/Data/step7Data.csv')
+    fs.createReadStream('./src/Data/RawData.csv')
         .pipe(csv())
         .on('data', async data => await results.push(data))
         .on('end', async () => {
             await results.forEach(async function(result: any) {
-                result.country = '中國'
-                await insert(result)
+                console.log(result.title)
             })
         })
     return results
@@ -69,6 +72,6 @@ async function main() {
 
 // main()
 
-// readCSV()
+readCSV()
 
-query()
+// query()
