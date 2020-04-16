@@ -3,10 +3,8 @@ import Neode from 'neode'
 import dotenv from 'dotenv'
 import fs from 'fs'
 import csv from 'csv-parser'
-
-// const instance: Neode = Neode.fromEnv()
-
-// dotenv.config()
+import fetch from 'node-fetch'
+import * as WebRequest from 'web-request'
 
 var graphenedbURL: any = process.env['NEO4J_URL']
 var graphenedbUser: any = process.env['NEO4J_USERNAME']
@@ -48,7 +46,16 @@ async function insert(data: any) {
 }
 
 async function miningWithBaiduBaike(name: string) {
-    let url: string = `https://baike.baidu.com/item/${name}`
+    // let url: string = `https://baike.baidu.com/item/${name}`
+    let url: string = `https://baike.baidu.com/item/%E7%83%B9%E5%88%80%E9%B1%BC`
+    console.log(url)
+    let data: any = await fetch(url)
+        .then(res => res.text())
+        .then(body => {
+            return body
+        })
+    // let block: any = $.parseHTML(data)
+    console.log(data)
 }
 
 async function readCSV() {
@@ -58,7 +65,8 @@ async function readCSV() {
         .on('data', async data => await results.push(data))
         .on('end', async () => {
             await results.forEach(async function(result: any) {
-                console.log(result.title)
+                // console.log(result.title)
+                await miningWithBaiduBaike(result.title)
             })
         })
     return results
@@ -72,6 +80,8 @@ async function main() {
 
 // main()
 
-readCSV()
+// readCSV()
+
+miningWithBaiduBaike('烹刀鱼')
 
 // query()
