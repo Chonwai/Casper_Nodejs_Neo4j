@@ -5,6 +5,7 @@ import fs from 'fs'
 import csv from 'csv-parser'
 import fetch from 'node-fetch'
 import * as WebRequest from 'web-request'
+import * as cheerio from 'cheerio'
 
 var graphenedbURL: any = process.env['NEO4J_URL']
 var graphenedbUser: any = process.env['NEO4J_USERNAME']
@@ -48,14 +49,15 @@ async function insert(data: any) {
 async function miningWithBaiduBaike(name: string) {
     // let url: string = `https://baike.baidu.com/item/${name}`
     let url: string = `https://baike.baidu.com/item/%E7%83%B9%E5%88%80%E9%B1%BC`
-    console.log(url)
-    let data: any = await fetch(url)
-        .then(res => res.text())
-        .then(body => {
-            return body
-        })
-    // let block: any = $.parseHTML(data)
-    console.log(data)
+    var result = await WebRequest.get(url)
+    console.log(result)
+    // let data: any = await fetch(url)
+    //     .then(res => res.text())
+    //     .then(body => {
+    //         return body
+    //     })
+    // // let block: any = $.parseHTML(data)
+    // console.log(data)
 }
 
 async function readCSV() {

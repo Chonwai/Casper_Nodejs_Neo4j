@@ -14,13 +14,16 @@
     "dependencies": {
         "@types/lodash": "^4.14.149",
         "@types/node": "^13.7.6",
+        "@types/node-fetch": "^2.5.6",
         "@types/request": "^2.48.4",
+        "cheerio": "^1.0.0-rc.3",
         "csv-parser": "^2.3.2",
         "dotenv": "^8.2.0",
         "express": "^4.17.1",
         "lodash": "^4.17.15",
         "neo4j-driver": "^4.0.1",
         "neode": "^0.4.2",
+        "node-fetch": "^2.6.0",
         "node-neo4j": "^2.0.3",
         "request": "^2.88.2",
         "web-request": "^1.0.7"
