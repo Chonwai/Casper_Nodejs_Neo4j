@@ -55,6 +55,7 @@ const neo4j_driver_1 = __importDefault(require('neo4j-driver'))
 const fs_1 = __importDefault(require('fs'))
 const csv_parser_1 = __importDefault(require('csv-parser'))
 const WebRequest = __importStar(require('web-request'))
+const cheerio = __importStar(require('cheerio'))
 var graphenedbURL = process.env['NEO4J_URL']
 var graphenedbUser = process.env['NEO4J_USERNAME']
 var graphenedbPass = process.env['NEO4J_PASSWORD']
@@ -95,52 +96,59 @@ function insert(data) {
 }
 function miningWithBaiduBaike(name) {
     return __awaiter(this, void 0, void 0, function*() {
-        // let url: string = `https://baike.baidu.com/item/${name}`
-        let url = `https://baike.baidu.com/item/%E7%83%B9%E5%88%80%E9%B1%BC`
-        var result = yield WebRequest.get(url)
-        console.log(result)
-        // let data: any = await fetch(url)
-        //     .then(res => res.text())
-        //     .then(body => {
-        //         return body
-        //     })
-        // // let block: any = $.parseHTML(data)
-        // console.log(data)
+        let encodeName = encodeURI(name)
+        let url = `https://baike.baidu.com/item/${encodeName}`
+        let result = yield WebRequest.get(url)
+        let $ = cheerio.load(result.body)
+        let rawInfo = $('.basicInfo-item')
+            .contents()
+            .text()
+        let ingredients = ''
+        let strArr = rawInfo.split('\n')
+        for (let i = 0; i < strArr.length; i++) {
+            if (strArr[i] === '主要食材') {
+                ingredients = strArr[i + 1]
+            }
+        }
+        console.log(name + ': ' + ingredients)
     })
 }
 function readCSV() {
     return __awaiter(this, void 0, void 0, function*() {
         var results = []
-        fs_1.default
+        let titleList = []
+        yield fs_1.default
             .createReadStream('./src/Data/RawData.csv')
-            .pipe(csv_parser_1.default())
-            .on('data', data =>
-                __awaiter(this, void 0, void 0, function*() {
-                    return yield results.push(data)
-                })
-            )
-            .on('end', () =>
-                __awaiter(this, void 0, void 0, function*() {
-                    yield results.forEach(function(result) {
-                        return __awaiter(this, void 0, void 0, function*() {
-                            // console.log(result.title)
-                            yield miningWithBaiduBaike(result.title)
-                        })
+            .pipe(yield csv_parser_1.default())
+            .on('data', data => results.push(data))
+            .on('end', () => {
+                results.forEach(function(result) {
+                    return __awaiter(this, void 0, void 0, function*() {
+                        titleList.push(result.title)
                     })
                 })
-            )
-        return results
+            })
+        return titleList
     })
 }
 function main() {
     return __awaiter(this, void 0, void 0, function*() {
-        var data = []
+        let data
+        let array
         data = yield readCSV()
-        console.log(data)
+        setTimeout(
+            () =>
+                __awaiter(this, void 0, void 0, function*() {
+                    for (let i of data) {
+                        yield miningWithBaiduBaike(i)
+                    }
+                }),
+            500
+        )
     })
 }
-// main()
+main()
 // readCSV()
-miningWithBaiduBaike('烹刀鱼')
+// miningWithBaiduBaike('烹刀鱼')
 // query()
 //# sourceMappingURL=index.js.map

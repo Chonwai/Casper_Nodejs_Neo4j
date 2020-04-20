@@ -12,6 +12,7 @@
     "author": "Chonwai Un, Edison",
     "license": "ISC",
     "dependencies": {
+        "@types/cheerio": "^0.22.17",
         "@types/lodash": "^4.14.149",
         "@types/node": "^13.7.6",
         "@types/node-fetch": "^2.5.6",
