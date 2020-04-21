@@ -7,6 +7,7 @@ import fetch from 'node-fetch'
 import * as WebRequest from 'web-request'
 import * as cheerio from 'cheerio'
 import toUnicode from './src/Utils/utils'
+import { response } from 'express'
 
 var graphenedbURL: any = process.env['NEO4J_URL']
 var graphenedbUser: any = process.env['NEO4J_USERNAME']
@@ -33,7 +34,6 @@ async function query() {
 }
 
 async function insert(data: any) {
-    console.log(data.taste)
     var result = await session.run(
         `
         CREATE (d:Dish {id: ${data.id}, name: ${data.title}, regional_cuisine: ${data.regional_cuisine}, taste: ${data.taste}, ingredients_details: ${data.ingredients_details}})
@@ -44,7 +44,21 @@ async function insert(data: any) {
     `,
         { data: data }
     )
-    // console.log(result)
+}
+
+async function update(data: any) {
+    var result = await session.run(
+        `
+        MATCH (n:Dish)
+        WHERE n.id = '${data.id}'
+        SET n.description = '${data.description}'
+        RETURN n
+    `,
+        { data: data }
+    )
+    result.records.forEach(function(record: any) {
+        console.log(record._fields[0].properties)
+    })
 }
 
 async function miningWithBaiduBaike(name: string) {
@@ -52,6 +66,10 @@ async function miningWithBaiduBaike(name: string) {
     let url: string = `https://baike.baidu.com/item/${encodeName}`
     let result: any = await WebRequest.get(url)
     let $ = cheerio.load(result.body)
+    let description: string = $('.lemma-summary')
+        .contents()
+        .text()
+        .replace(/\n/g, '')
     let rawInfo: any = $('.basicInfo-item')
         .contents()
         .text()
@@ -62,7 +80,12 @@ async function miningWithBaiduBaike(name: string) {
             ingredients = strArr[i + 1]
         }
     }
-    console.log(name + ': ' + ingredients)
+
+    let responsesObject: object = {
+        description: description,
+        ingredients: ingredients,
+    }
+    return responsesObject
 }
 
 async function readCSV(): Promise<any[string]> {
@@ -82,11 +105,14 @@ async function readCSV(): Promise<any[string]> {
 
 async function main() {
     let data: any
-    let array: any
     data = await readCSV()
     setTimeout(async () => {
-        for (let i of data) {
-            await miningWithBaiduBaike(i)
+        for (let i: number = 0; i < data.length; i++) {
+            let miningData: any = {}
+            miningData = await miningWithBaiduBaike(data[i])
+            miningData.id = i + 1
+            await update(miningData)
+            console.log(miningData)
         }
     }, 500)
 }

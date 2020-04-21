@@ -80,7 +80,6 @@ function query() {
 }
 function insert(data) {
     return __awaiter(this, void 0, void 0, function*() {
-        console.log(data.taste)
         var result = yield session.run(
             `
         CREATE (d:Dish {id: ${data.id}, name: ${data.title}, regional_cuisine: ${data.regional_cuisine}, taste: ${data.taste}, ingredients_details: ${data.ingredients_details}})
@@ -91,7 +90,22 @@ function insert(data) {
     `,
             { data: data }
         )
-        // console.log(result)
+    })
+}
+function update(data) {
+    return __awaiter(this, void 0, void 0, function*() {
+        var result = yield session.run(
+            `
+        MATCH (n:Dish)
+        WHERE n.id = '${data.id}'
+        SET n.description = '${data.description}'
+        RETURN n
+    `,
+            { data: data }
+        )
+        result.records.forEach(function(record) {
+            console.log(record._fields[0].properties)
+        })
     })
 }
 function miningWithBaiduBaike(name) {
@@ -100,6 +114,10 @@ function miningWithBaiduBaike(name) {
         let url = `https://baike.baidu.com/item/${encodeName}`
         let result = yield WebRequest.get(url)
         let $ = cheerio.load(result.body)
+        let description = $('.lemma-summary')
+            .contents()
+            .text()
+            .replace(/\n/g, '')
         let rawInfo = $('.basicInfo-item')
             .contents()
             .text()
@@ -110,7 +128,11 @@ function miningWithBaiduBaike(name) {
                 ingredients = strArr[i + 1]
             }
         }
-        console.log(name + ': ' + ingredients)
+        let responsesObject = {
+            description: description,
+            ingredients: ingredients,
+        }
+        return responsesObject
     })
 }
 function readCSV() {
@@ -134,13 +156,16 @@ function readCSV() {
 function main() {
     return __awaiter(this, void 0, void 0, function*() {
         let data
-        let array
         data = yield readCSV()
         setTimeout(
             () =>
                 __awaiter(this, void 0, void 0, function*() {
-                    for (let i of data) {
-                        yield miningWithBaiduBaike(i)
+                    for (let i = 0; i < data.length; i++) {
+                        let miningData = {}
+                        miningData = yield miningWithBaiduBaike(data[i])
+                        miningData.id = i + 1
+                        yield update(miningData)
+                        console.log(miningData)
                     }
                 }),
             500
