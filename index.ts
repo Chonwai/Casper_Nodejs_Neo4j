@@ -1,13 +1,9 @@
 import neo4j from 'neo4j-driver'
-import Neode from 'neode'
-import dotenv from 'dotenv'
 import fs from 'fs'
-import csv from 'csv-parser'
-import fetch from 'node-fetch'
+import csvReader from 'csv-parser'
+import * as CsvWriter from 'csv-writer'
 import * as WebRequest from 'web-request'
 import * as cheerio from 'cheerio'
-import toUnicode from './src/Utils/utils'
-import { response } from 'express'
 
 var graphenedbURL: any = process.env['NEO4J_URL']
 var graphenedbUser: any = process.env['NEO4J_USERNAME']
@@ -21,6 +17,16 @@ var driver: any = neo4j.driver(
 )
 
 var session = driver.session()
+
+const csvWriter = CsvWriter.createObjectCsvWriter({
+    path: 'src/Data/out.csv',
+    header: [
+        { id: 'id', title: 'id' },
+        { id: 'name', title: 'name' },
+        { id: 'description', title: 'description' },
+        { id: 'ingredients', title: 'ingredients' },
+    ],
+})
 
 async function query() {
     var result = await session.run(`
@@ -73,10 +79,19 @@ async function miningWithBaiduBaike(name: string) {
     let rawInfo: any = $('.basicInfo-item')
         .contents()
         .text()
+        .replace(/    /g, '')
     let ingredients: string = ''
-    let strArr: [] = rawInfo.split('\n')
+    let strArr: any = rawInfo.split('\n')
     for (let i = 0; i < strArr.length; i++) {
         if (strArr[i] === '主要食材') {
+            ingredients = strArr[i + 1]
+        } else if (strArr[i] === '主要原料') {
+            ingredients = strArr[i + 1]
+        } else if (strArr[i] === '主料') {
+            ingredients = strArr[i + 1]
+        } else if (strArr[i] === '主料：') {
+            ingredients = strArr[i + 1]
+        } else if (strArr[i] === '原料') {
             ingredients = strArr[i + 1]
         }
     }
@@ -93,7 +108,7 @@ async function readCSV(): Promise<any[string]> {
     let titleList: any[string] = []
     await fs
         .createReadStream('./src/Data/RawData.csv')
-        .pipe(await csv())
+        .pipe(await csvReader())
         .on('data', data => results.push(data))
         .on('end', () => {
             results.forEach(async function(result: any) {
@@ -103,17 +118,26 @@ async function readCSV(): Promise<any[string]> {
     return titleList
 }
 
+async function writeCSV(data: any): Promise<void> {
+    await csvWriter.writeRecords(data).then(() => {
+        console.log('Done!')
+    })
+}
+
 async function main() {
     let data: any
+    let miningData: any = {}
     data = await readCSV()
-    setTimeout(async () => {
+    await setTimeout(async () => {
+        let insertData: any = []
         for (let i: number = 0; i < data.length; i++) {
-            let miningData: any = {}
             miningData = await miningWithBaiduBaike(data[i])
             miningData.id = i + 1
-            await update(miningData)
+            miningData.name = data[i]
             console.log(miningData)
+            insertData.push(miningData)
         }
+        await writeCSV(insertData)
     }, 500)
 }
 

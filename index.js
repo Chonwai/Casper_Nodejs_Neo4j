@@ -54,6 +54,7 @@ Object.defineProperty(exports, '__esModule', { value: true })
 const neo4j_driver_1 = __importDefault(require('neo4j-driver'))
 const fs_1 = __importDefault(require('fs'))
 const csv_parser_1 = __importDefault(require('csv-parser'))
+const CsvWriter = __importStar(require('csv-writer'))
 const WebRequest = __importStar(require('web-request'))
 const cheerio = __importStar(require('cheerio'))
 var graphenedbURL = process.env['NEO4J_URL']
@@ -66,6 +67,15 @@ var driver = neo4j_driver_1.default.driver(
     neo4j_driver_1.default.auth.basic('neo4j', '1234')
 )
 var session = driver.session()
+const csvWriter = CsvWriter.createObjectCsvWriter({
+    path: 'src/Data/out.csv',
+    header: [
+        { id: 'id', title: 'id' },
+        { id: 'name', title: 'name' },
+        { id: 'description', title: 'description' },
+        { id: 'ingredients', title: 'ingredients' },
+    ],
+})
 function query() {
     return __awaiter(this, void 0, void 0, function*() {
         var result = yield session.run(`
@@ -112,6 +122,7 @@ function miningWithBaiduBaike(name) {
     return __awaiter(this, void 0, void 0, function*() {
         let encodeName = encodeURI(name)
         let url = `https://baike.baidu.com/item/${encodeName}`
+        // let url: string = `https://baike.baidu.com/item/%E8%8B%A6%E8%8C%AD%E9%B9%85%E6%8E%8C%E6%B1%A4`
         let result = yield WebRequest.get(url)
         let $ = cheerio.load(result.body)
         let description = $('.lemma-summary')
@@ -121,10 +132,19 @@ function miningWithBaiduBaike(name) {
         let rawInfo = $('.basicInfo-item')
             .contents()
             .text()
+            .replace(/    /g, '')
         let ingredients = ''
         let strArr = rawInfo.split('\n')
         for (let i = 0; i < strArr.length; i++) {
             if (strArr[i] === '主要食材') {
+                ingredients = strArr[i + 1]
+            } else if (strArr[i] === '主要原料') {
+                ingredients = strArr[i + 1]
+            } else if (strArr[i] === '主料') {
+                ingredients = strArr[i + 1]
+            } else if (strArr[i] === '主料：') {
+                ingredients = strArr[i + 1]
+            } else if (strArr[i] === '原料') {
                 ingredients = strArr[i + 1]
             }
         }
@@ -153,20 +173,30 @@ function readCSV() {
         return titleList
     })
 }
+function writeCSV(data) {
+    return __awaiter(this, void 0, void 0, function*() {
+        yield csvWriter.writeRecords(data).then(() => {
+            console.log('Done!')
+        })
+    })
+}
 function main() {
     return __awaiter(this, void 0, void 0, function*() {
         let data
+        let miningData = {}
         data = yield readCSV()
-        setTimeout(
+        yield setTimeout(
             () =>
                 __awaiter(this, void 0, void 0, function*() {
-                    for (let i = 0; i < data.length; i++) {
-                        let miningData = {}
+                    let insertData = []
+                    for (let i = 0; i < 100; i++) {
                         miningData = yield miningWithBaiduBaike(data[i])
                         miningData.id = i + 1
-                        yield update(miningData)
+                        miningData.name = data[i]
                         console.log(miningData)
+                        insertData.push(miningData)
                     }
+                    yield writeCSV(insertData)
                 }),
             500
         )
