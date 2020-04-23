@@ -68,7 +68,7 @@ var driver = neo4j_driver_1.default.driver(
 )
 var session = driver.session()
 const csvWriter = CsvWriter.createObjectCsvWriter({
-    path: 'src/Data/out.csv',
+    path: 'src/Data/BaikeDataset.csv',
     header: [
         { id: 'id', title: 'id' },
         { id: 'name', title: 'name' },
@@ -122,7 +122,6 @@ function miningWithBaiduBaike(name) {
     return __awaiter(this, void 0, void 0, function*() {
         let encodeName = encodeURI(name)
         let url = `https://baike.baidu.com/item/${encodeName}`
-        // let url: string = `https://baike.baidu.com/item/%E8%8B%A6%E8%8C%AD%E9%B9%85%E6%8E%8C%E6%B1%A4`
         let result = yield WebRequest.get(url)
         let $ = cheerio.load(result.body)
         let description = $('.lemma-summary')
@@ -145,6 +144,8 @@ function miningWithBaiduBaike(name) {
             } else if (strArr[i] === '主料：') {
                 ingredients = strArr[i + 1]
             } else if (strArr[i] === '原料') {
+                ingredients = strArr[i + 1]
+            } else if (strArr[i] === '原材料') {
                 ingredients = strArr[i + 1]
             }
         }
@@ -189,7 +190,7 @@ function main() {
             () =>
                 __awaiter(this, void 0, void 0, function*() {
                     let insertData = []
-                    for (let i = 0; i < 100; i++) {
+                    for (let i = 0; i < data.length; i++) {
                         miningData = yield miningWithBaiduBaike(data[i])
                         miningData.id = i + 1
                         miningData.name = data[i]
@@ -202,8 +203,48 @@ function main() {
         )
     })
 }
-main()
+// main()
 // readCSV()
 // miningWithBaiduBaike('烹刀鱼')
 // query()
+function pressureA() {
+    return __awaiter(this, void 0, void 0, function*() {
+        for (let i = 0; i <= 2000; i++) {
+            let url = `http://127.0.0.1:8000`
+            let result = yield WebRequest.get(url)
+            console.log(result.body + ` A ${i + 1}`)
+        }
+    })
+}
+function pressureB() {
+    return __awaiter(this, void 0, void 0, function*() {
+        for (let i = 0; i <= 2000; i++) {
+            let url = `http://127.0.0.1:8000/api/v1/categories/all`
+            let result = yield WebRequest.get(url)
+            console.log(result.body + ` B ${i + 1}`)
+        }
+    })
+}
+function pressureC() {
+    return __awaiter(this, void 0, void 0, function*() {
+        for (let i = 0; i <= 2000; i++) {
+            let url = `http://127.0.0.1:8000`
+            let result = yield WebRequest.get(url)
+            console.log(result.body + ` C ${i + 1}`)
+        }
+    })
+}
+function pressureD() {
+    return __awaiter(this, void 0, void 0, function*() {
+        for (let i = 0; i <= 2000; i++) {
+            let url = `http://127.0.0.1:8000/api/v1/categories/all`
+            let result = yield WebRequest.get(url)
+            console.log(result.body + ` D ${i + 1}`)
+        }
+    })
+}
+pressureA()
+pressureB()
+pressureC()
+pressureD()
 //# sourceMappingURL=index.js.map

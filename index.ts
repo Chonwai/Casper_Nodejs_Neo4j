@@ -19,7 +19,7 @@ var driver: any = neo4j.driver(
 var session = driver.session()
 
 const csvWriter = CsvWriter.createObjectCsvWriter({
-    path: 'src/Data/out.csv',
+    path: 'src/Data/BaikeDataset.csv',
     header: [
         { id: 'id', title: 'id' },
         { id: 'name', title: 'name' },
@@ -93,6 +93,8 @@ async function miningWithBaiduBaike(name: string) {
             ingredients = strArr[i + 1]
         } else if (strArr[i] === '原料') {
             ingredients = strArr[i + 1]
+        } else if (strArr[i] === '原材料') {
+            ingredients = strArr[i + 1]
         }
     }
 
@@ -141,7 +143,7 @@ async function main() {
     }, 500)
 }
 
-main()
+// main()
 
 // readCSV()
 
