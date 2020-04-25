@@ -34,11 +34,6 @@ var __awaiter =
             )
         })
     }
-var __importDefault =
-    (this && this.__importDefault) ||
-    function(mod) {
-        return mod && mod.__esModule ? mod : { default: mod }
-    }
 var __importStar =
     (this && this.__importStar) ||
     function(mod) {
@@ -50,74 +45,25 @@ var __importStar =
         result['default'] = mod
         return result
     }
+var __importDefault =
+    (this && this.__importDefault) ||
+    function(mod) {
+        return mod && mod.__esModule ? mod : { default: mod }
+    }
 Object.defineProperty(exports, '__esModule', { value: true })
-const neo4j_driver_1 = __importDefault(require('neo4j-driver'))
-const fs_1 = __importDefault(require('fs'))
-const csv_parser_1 = __importDefault(require('csv-parser'))
-const CsvWriter = __importStar(require('csv-writer'))
 const WebRequest = __importStar(require('web-request'))
 const cheerio = __importStar(require('cheerio'))
-var graphenedbURL = process.env['NEO4J_URL']
-var graphenedbUser = process.env['NEO4J_USERNAME']
-var graphenedbPass = process.env['NEO4J_PASSWORD']
-var graphenedbHost = process.env['NEO4J_HOST']
-var graphenedbHTTPPort = process.env['NEO4J_HTTP_PORT']
-var driver = neo4j_driver_1.default.driver(
-    'bolt://localhost:7687',
-    neo4j_driver_1.default.auth.basic('neo4j', '1234')
-)
-var session = driver.session()
-const csvWriter = CsvWriter.createObjectCsvWriter({
-    path: 'src/Data/BaikeDataset.csv',
-    header: [
-        { id: 'id', title: 'id' },
-        { id: 'name', title: 'name' },
-        { id: 'description', title: 'description' },
-        { id: 'ingredients', title: 'ingredients' },
-    ],
-})
-function query() {
-    return __awaiter(this, void 0, void 0, function*() {
-        var result = yield session.run(`
-        MATCH (d)
-        WHERE (d)-[:has_taste]->(:Taste {name:'酸辣'}) AND (d)-[:is_one_of]->(:Chinese_Cuisine {name: '湘菜'})
-        RETURN d
-    `)
-        result.records.forEach(function(record) {
-            console.log(record._fields[0].properties)
-        })
-    })
-}
-function insert(data) {
-    return __awaiter(this, void 0, void 0, function*() {
-        var result = yield session.run(
-            `
-        CREATE (d:Dish {id: ${data.id}, name: ${data.title}, regional_cuisine: ${data.regional_cuisine}, taste: ${data.taste}, ingredients_details: ${data.ingredients_details}})
-        MATCH (t: Taste {name: ${data.taste}}), (c: Cuisine {name: 中國菜}), (cc: Chinese_Cuisine {name: ${data.regional_cuisine}})
-        CREATE (d)-[r1: has_taste]->(t)
-        CREATE (d)-[r2: is_one_of]->(cc)
-        RETURN d,t
-    `,
-            { data: data }
-        )
-    })
-}
-function update(data) {
-    return __awaiter(this, void 0, void 0, function*() {
-        var result = yield session.run(
-            `
-        MATCH (n:Dish)
-        WHERE n.id = '${data.id}'
-        SET n.description = '${data.description}'
-        RETURN n
-    `,
-            { data: data }
-        )
-        result.records.forEach(function(record) {
-            console.log(record._fields[0].properties)
-        })
-    })
-}
+const Basic_1 = __importDefault(require('./src/Repository/Basic'))
+const CSVServices_1 = __importDefault(require('./src/Services/CSVServices'))
+// const csvWriter = CsvWriter.createObjectCsvWriter({
+//     path: 'src/Data/BaikeDataset.csv',
+//     header: [
+//         { id: 'id', title: 'id' },
+//         { id: 'name', title: 'name' },
+//         { id: 'description', title: 'description' },
+//         { id: 'ingredients', title: 'ingredients' },
+//     ],
+// })
 function miningWithBaiduBaike(name) {
     return __awaiter(this, void 0, void 0, function*() {
         let encodeName = encodeURI(name)
@@ -156,95 +102,64 @@ function miningWithBaiduBaike(name) {
         return responsesObject
     })
 }
-function readCSV() {
+// async function readCSV(): Promise<any[string]> {
+//     var results: any[string] = []
+//     let titleList: any[string] = []
+//     await fs
+//         .createReadStream('./src/Data/step10Data.csv')
+//         .pipe(await csvReader())
+//         .on('data', data => results.push(data))
+//         .on('end', () => {
+//             results.forEach(async function(result: any) {
+//                 titleList.push(result.title)
+//                 console.log(result)
+//             })
+//         })
+//     return titleList
+// }
+// async function writeCSV(data: any): Promise<void> {
+//     await csvWriter.writeRecords(data).then(() => {
+//         console.log('Done!')
+//     })
+// }
+function readCSVtoJSON() {
     return __awaiter(this, void 0, void 0, function*() {
-        var results = []
-        let titleList = []
-        yield fs_1.default
-            .createReadStream('./src/Data/RawData.csv')
-            .pipe(yield csv_parser_1.default())
-            .on('data', data => results.push(data))
-            .on('end', () => {
-                results.forEach(function(result) {
-                    return __awaiter(this, void 0, void 0, function*() {
-                        titleList.push(result.title)
-                    })
-                })
-            })
-        return titleList
-    })
-}
-function writeCSV(data) {
-    return __awaiter(this, void 0, void 0, function*() {
-        yield csvWriter.writeRecords(data).then(() => {
-            console.log('Done!')
-        })
+        let csv = new CSVServices_1.default()
+        let json = yield csv.readCSVtoJSON('./src/Data/step10Data.csv')
+        return json
     })
 }
 function main() {
     return __awaiter(this, void 0, void 0, function*() {
-        let data
-        let miningData = {}
-        data = yield readCSV()
-        yield setTimeout(
-            () =>
-                __awaiter(this, void 0, void 0, function*() {
-                    let insertData = []
-                    for (let i = 0; i < data.length; i++) {
-                        miningData = yield miningWithBaiduBaike(data[i])
-                        miningData.id = i + 1
-                        miningData.name = data[i]
-                        console.log(miningData)
-                        insertData.push(miningData)
-                    }
-                    yield writeCSV(insertData)
-                }),
-            500
-        )
+        // let data: any
+        // let miningData: any = {}
+        // data = await readCSV()
+        // await setTimeout(async () => {
+        //     let insertData: any = []
+        //     for (let i: number = 0; i < data.length; i++) {
+        //         miningData = await miningWithBaiduBaike(data[i])
+        //         miningData.id = i + 1
+        //         miningData.name = data[i]
+        //         console.log(miningData)
+        //         insertData.push(miningData)
+        //     }
+        //     await writeCSV(insertData)
+        // }, 500)
+        let json = yield readCSVtoJSON()
+        for (let item of json) {
+            console.log(item)
+        }
+        let cypher = `
+                MATCH (n:Dish)
+                WHERE n.id = '1'
+                RETURN n`
+        let neo4jQuery = new Basic_1.default()
+        neo4jQuery.query(cypher)
+        return 0
     })
 }
-// main()
+main()
 // readCSV()
 // miningWithBaiduBaike('烹刀鱼')
 // query()
-function pressureA() {
-    return __awaiter(this, void 0, void 0, function*() {
-        for (let i = 0; i <= 2000; i++) {
-            let url = `http://127.0.0.1:8000`
-            let result = yield WebRequest.get(url)
-            console.log(result.body + ` A ${i + 1}`)
-        }
-    })
-}
-function pressureB() {
-    return __awaiter(this, void 0, void 0, function*() {
-        for (let i = 0; i <= 2000; i++) {
-            let url = `http://127.0.0.1:8000/api/v1/categories/all`
-            let result = yield WebRequest.get(url)
-            console.log(result.body + ` B ${i + 1}`)
-        }
-    })
-}
-function pressureC() {
-    return __awaiter(this, void 0, void 0, function*() {
-        for (let i = 0; i <= 2000; i++) {
-            let url = `http://127.0.0.1:8000`
-            let result = yield WebRequest.get(url)
-            console.log(result.body + ` C ${i + 1}`)
-        }
-    })
-}
-function pressureD() {
-    return __awaiter(this, void 0, void 0, function*() {
-        for (let i = 0; i <= 2000; i++) {
-            let url = `http://127.0.0.1:8000/api/v1/categories/all`
-            let result = yield WebRequest.get(url)
-            console.log(result.body + ` D ${i + 1}`)
-        }
-    })
-}
-pressureA()
-pressureB()
-pressureC()
-pressureD()
 //# sourceMappingURL=index.js.map
