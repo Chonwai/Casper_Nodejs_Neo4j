@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const neo4j_driver_1 = __importDefault(require("neo4j-driver"));
 class BasicQuery {
     constructor() {
-        this.driver = neo4j_driver_1.default.driver('bolt://localhost:7687', neo4j_driver_1.default.auth.basic('neo4j', '1234'));
+        this.driver = neo4j_driver_1.default.driver('bolt://localhost:11002', neo4j_driver_1.default.auth.basic('neo4j', '1234'));
         this.session = this.driver.session();
     }
     query(cypher) {

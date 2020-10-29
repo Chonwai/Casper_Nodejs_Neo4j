@@ -55,15 +55,6 @@ const WebRequest = __importStar(require('web-request'))
 const cheerio = __importStar(require('cheerio'))
 const Basic_1 = __importDefault(require('./src/Repository/Basic'))
 const CSVServices_1 = __importDefault(require('./src/Services/CSVServices'))
-// const csvWriter = CsvWriter.createObjectCsvWriter({
-//     path: 'src/Data/BaikeDataset.csv',
-//     header: [
-//         { id: 'id', title: 'id' },
-//         { id: 'name', title: 'name' },
-//         { id: 'description', title: 'description' },
-//         { id: 'ingredients', title: 'ingredients' },
-//     ],
-// })
 function miningWithBaiduBaike(name) {
     return __awaiter(this, void 0, void 0, function*() {
         let encodeName = encodeURI(name)
@@ -102,26 +93,6 @@ function miningWithBaiduBaike(name) {
         return responsesObject
     })
 }
-// async function readCSV(): Promise<any[string]> {
-//     var results: any[string] = []
-//     let titleList: any[string] = []
-//     await fs
-//         .createReadStream('./src/Data/step10Data.csv')
-//         .pipe(await csvReader())
-//         .on('data', data => results.push(data))
-//         .on('end', () => {
-//             results.forEach(async function(result: any) {
-//                 titleList.push(result.title)
-//                 console.log(result)
-//             })
-//         })
-//     return titleList
-// }
-// async function writeCSV(data: any): Promise<void> {
-//     await csvWriter.writeRecords(data).then(() => {
-//         console.log('Done!')
-//     })
-// }
 function readCSVtoJSON() {
     return __awaiter(this, void 0, void 0, function*() {
         let csv = new CSVServices_1.default()
@@ -146,20 +117,16 @@ function main() {
         //     await writeCSV(insertData)
         // }, 500)
         let json = yield readCSVtoJSON()
-        for (let item of json) {
-            console.log(item)
-        }
+        // for (let item of json) {
+        //     console.log(item)
+        // }
         let cypher = `
                 MATCH (n:Dish)
                 WHERE n.id = '1'
                 RETURN n`
         let neo4jQuery = new Basic_1.default()
         neo4jQuery.query(cypher)
-        return 0
     })
 }
 main()
-// readCSV()
-// miningWithBaiduBaike('烹刀鱼')
-// query()
 //# sourceMappingURL=index.js.map

@@ -16,4 +16,4 @@ function toUnicode(str) {
         .join('');
 }
 exports.default = toUnicode;
-//# sourceMappingURL=Utils.js.map
+//# sourceMappingURL=utils.js.map

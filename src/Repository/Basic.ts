@@ -6,7 +6,7 @@ class BasicQuery {
 
     constructor() {
         this.driver = neo4j.driver(
-            'bolt://localhost:7687',
+            'bolt://localhost:11002',
             neo4j.auth.basic('neo4j', '1234')
         )
         this.session = this.driver.session()

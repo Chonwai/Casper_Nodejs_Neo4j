@@ -65,9 +65,9 @@ async function main() {
 
     let json: any = await readCSVtoJSON()
 
-    for (let item of json) {
-        console.log(item)
-    }
+    // for (let item of json) {
+    //     console.log(item)
+    // }
 
     let cypher: string = `
                 MATCH (n:Dish)
