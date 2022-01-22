@@ -26,7 +26,7 @@
         "lodash": "^4.17.19",
         "neo4j-driver": "^4.0.2",
         "neode": "^0.4.3",
-        "node-fetch": "^2.6.0",
+        "node-fetch": "^3.1.1",
         "node-neo4j": "^2.0.3",
         "request": "^2.88.2",
         "web-request": "^1.0.7"
